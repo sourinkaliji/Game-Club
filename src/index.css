@@ -3,10 +3,17 @@
 @theme {
   --color-primary: #ef5a6f;
   --color-darkPrimary: #a21024;
+  --color-SlowPrimary: #f8b9c2;
+
   --color-subPrimary: #536493;
   --color-slowSubPrimary: #7c8cb6;
+  --color-SuperSlowSubPrimary: #eff1f6;
+
   --color-backgroundcolor: #fff1db;
   --color-darkBackgroundcolor: #d4bdac;
+
+  /* Extra Small Screen */
+  --breakpoint-xs: 22rem;
 }
 
 @font-face {
@@ -45,5 +52,20 @@
 }
 
 .man {
-  border-radius: 75% 75% 50% 50%;
+  border-radius: 100% 35% 35% 35%;
+}
+
+@keyframes wiggle-body {
+  0% {
+    border-radius: 100% 35% 35% 75%;
+  }
+  75% {
+    border-radius: 35% 100% 75% 35%;
+  }
+  100% {
+    border-radius: 100% 35% 35% 75%;
+  }
+}
+.animate-wiggle-body {
+  animation: wiggle-body 1s ease-in-out infinite;
 }

@@ -1,25 +1,28 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Icons } from "../components/Icons";
 
 const games = [
   {
-    name: "Chess",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/4/4b/Chess_board_opening_staunton.jpg",
+    name: "سنگ کاغذ قیچی",
+    image: "./rps.png",
+    page: "/Rps",
   },
   {
     name: "هانتر",
-    image: "../../public/HunterGame.png",
+    image: "./HunterGame.png",
     page: "/HunterGameStarter",
   },
   {
-    name: "پینگ پونگ",
+    name: "سودوکو",
     image:
-      "https://upload.wikimedia.org/wikipedia/commons/5/5d/Table_tennis_table.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/5/5d/Scrabble_game_in_progress.jpg",
+    page: "/SudokuGame",
   },
   {
-    name: "Ludo",
+    name: "جاسوس",
     image: "https://upload.wikimedia.org/wikipedia/commons/3/3c/Ludo_board.jpg",
+    page: "/SpySetup",
   },
   {
     name: "Badminton",
@@ -33,8 +36,7 @@ const games = [
   },
   {
     name: "Scrabble",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/5/5d/Scrabble_game_in_progress.jpg",
+    image: "",
   },
   {
     name: "Monopoly",
@@ -45,9 +47,17 @@ const games = [
 
 export default function OfflineGames() {
   return (
-    <div className="p-8 bg-backgroundcolor w-screen h-screen">
-      <h2 className="text-center mb-8 text-2xl font-bold">بازی های آفلاین</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 justify-center gap-4">
+    <div className="p-2 bg-backgroundcolor w-screen min-h-screen">
+      <div className="py-3 px-2 xs:px-4 flex justify-between items-center mt-1 mb-5 bg-darkBackgroundcolor rounded-xl">
+        <h2 className="text-center text-2xl font-bold">بازی های آفلاین</h2>
+        <Link
+          className="flex justify-center items-center border-2 rounded-3xl py-1 pl-2 pr-3 hover:shadow-lg hover:scale-105 transition-all duration-300 ease-out bg-darkBackgroundcolor hover:bg-backgroundcolor"
+          to={"/"}>
+          <span>برگشت</span>
+          <Icons.arrow className={"w-6 rotate-180"} />
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 justify-center gap-4">
         {games.map((game) => (
           <Link
             to={game.page}
@@ -57,12 +67,12 @@ export default function OfflineGames() {
               className="absolute inset-0 rounded-3xl"
               style={{
                 background: `linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 50%), url(${game.image})`,
-                backgroundSize: "contain",
-                backgroundPosition: "contain",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
               }}
             />
 
-            <h3 className="absolute bottom-8 right-2 text-2xl font-bold text-white">
+            <h3 className="absolute bottom-5 right-2 text-lg font-bold text-white">
               {game.name}
             </h3>
           </Link>
