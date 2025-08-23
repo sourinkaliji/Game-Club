@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import HomePage from "./pages/HomePage";
 import OfflineGames from "./pages/OfflineGames";
+import Login from "./pages/Login";
+import Profile from "./pages/Profile";
 
 import HunterGameStarter from "./pages/hunterGame/HunterGameStarter";
 import HunterGamePage from "./pages/hunterGame/HunterGamePage";
@@ -19,6 +21,8 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/OfflineGames" element={<OfflineGames />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/Profile" element={<Profile />} />
 
         <Route path="/HunterGameStarter" element={<HunterGameStarter />} />
         <Route path="/HunterGamePage" element={<HunterGamePage />} />

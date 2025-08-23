@@ -64,14 +64,20 @@ const SudokuGame = () => {
     }
   }, []);
 
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (isRunning && !newGame) {
+  //       setSeconds((s) => s + 1);
+  //     }
+  //   }, 1000);
+  //   return () => clearInterval(interval);
+  // }, [isRunning]);
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (isRunning && !newGame) {
-        setSeconds((s) => s + 1);
-      }
-    }, 1000);
+    if (!isRunning || newGame) return;
+    const interval = setInterval(() => setSeconds((s) => s + 1), 1000);
     return () => clearInterval(interval);
-  }, [isRunning]);
+  }, [isRunning, newGame]);
 
   useEffect(() => {
     if (board.length > 0) {
@@ -86,9 +92,6 @@ const SudokuGame = () => {
   }, [board, seconds]);
 
   const startNewGame = (level = difficulty) => {
-    setIsRunning(true);
-    setNewGame(false);
-
     clearGameSettingsSudoku();
     const { puzzle, solved } = generateSudoku(level);
     setBoard(puzzle);
@@ -96,6 +99,9 @@ const SudokuGame = () => {
     setFixedCells(puzzle.map((row) => row.map((cell) => cell !== 0)));
     setSeconds(0);
     setSelectedNumber(null);
+
+    setIsRunning(true);
+    setNewGame(false);
   };
 
   const handleCellSelect = (row, col) => {
@@ -183,9 +189,9 @@ const SudokuGame = () => {
               </button>
               <button
                 onClick={() => {
+                  clearGameSettingsSudoku();
                   setNewGame(true);
                   setIsRunning(true);
-                  clearGameSettingsSudoku();
                 }}
                 className="text-primary border-2 border-primary text-sm py-2 px-3 rounded-full mt-4 hover:border-darkPrimary hover:text-darkPrimary hover:scale-105 transition-all duration-300 ease-out">
                 شروع مجدد

@@ -5,7 +5,7 @@ import { Icons } from "../components/Icons";
 const Btn = ({ title, description, to }) => (
   <Link
     to={to}
-    className=" bg-primary text-backgroundcolor p-3 rounded-3xl w-9/12 hover:scale-105 hover:shadow-lg hover:bg-darkPrimary transition-all duration-300 ease-out cursor-pointer">
+    className=" bg-primary text-backgroundcolor hover:text-darkPrimary p-3 rounded-3xl w-9/12 hover:scale-105 hover:shadow-lg hover:bg-darkBackgroundcolor transition-all duration-300 ease-out cursor-pointer">
     <button className="text-start cursor-pointer">
       <h1 className="font-extrabold text-2xl">{title}</h1>
       <p className="text-sm">{description}</p>
@@ -23,16 +23,14 @@ function HomePage() {
           <Link
             className="flex justify-center items-center gap-2 hover:scale-105 transition-all duration-300 ease-out"
             // bg-darkBackgroundcolor hover:bg-backgroundcolor
-            to={"/"}>
+            to={"/Profile"}>
             <span className="text-lg">نام کاربر</span>
             <Icons.Profile className={"w-9 stroke-black"} />
           </Link>
         </div>
         <div className="flex flex-col justify-center items-center w-full h-full">
-          <div className="flex flex-col justify-center items-center gap-3 w-70 py-4 bg-darkBackgroundcolor animate-wiggle-body">
-            <div className="pb-3">
-              <Eyes />
-            </div>
+          <Eyes />
+          <div className="flex flex-col justify-center items-center gap-3 size-70 py-4 bg-darkPrimary animate-wiggle-body">
             <Btn
               title={"بازی آفلاین"}
               description={"بازی با دوستان بصورت محلی"}
@@ -41,7 +39,7 @@ function HomePage() {
             <Btn
               title={"بازی آنلاین"}
               description={"بازی با دوستان بصورت جهانی"}
-              to="/OfflineGames"
+              to="/Login"
             />
           </div>
         </div>

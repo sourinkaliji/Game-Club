@@ -57,15 +57,15 @@
 
 @keyframes wiggle-body {
   0% {
-    border-radius: 100% 35% 35% 75%;
+    border-radius: 100% 100% 50% 50%;
   }
-  75% {
-    border-radius: 35% 100% 75% 35%;
+  50% {
+    border-radius: 85% 85% 100% 100%;
   }
   100% {
-    border-radius: 100% 35% 35% 75%;
+    border-radius: 100% 100% 50% 50%;
   }
 }
 .animate-wiggle-body {
-  animation: wiggle-body 1s ease-in-out infinite;
+  animation: wiggle-body 2s ease-in-out infinite;
 }
