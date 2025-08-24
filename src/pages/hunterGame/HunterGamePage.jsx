@@ -6,158 +6,102 @@ import {
   clearGameSettingsHunter,
 } from "../utils";
 import { Icons } from "../../components/Icons";
-
-// لیستی از کلمات برای بازی
-const words = [
-  "گربه",
-  "سگ",
-  "درخت",
-  "خانه",
-  "کتاب",
-  "کامپیوتر",
-  "زمین",
-  "دریا",
-  "خورشید",
-  "ماه",
-  "دوچرخه",
-  "مداد",
-  "میز",
-  "صندلی",
-  "پنجره",
-  "گل",
-  "پرنده",
-  "قطار",
-  "هواپیما",
-  "ماشین",
-  "مدرسه",
-  "دانشگاه",
-  "سیب",
-  "پرتقال",
-  "خیار",
-  "هندوانه",
-  "موز",
-  "نان",
-  "شیر",
-  "پنیر",
-  "چای",
-  "قهوه",
-  "کفش",
-  "کلاه",
-  "لباس",
-  "ساعت",
-  "تلفن",
-  "تلویزیون",
-  "رادیو",
-  "یخچال",
-  "فرش",
-  "دیوار",
-  "کلید",
-  "در",
-  "پله",
-  "چراغ",
-  "کاغذ",
-  "نقاشی",
-  "دستکش",
-];
+import { getSelectedWords } from "./wordCategories";
 
 // ---------------------------------------------------------------
 // وقتی بازی رفرش میشه. دکمه تعویض در حالت بازی بدون منفی برمیگرده
 // ---------------------------------------------------------------
 export default function GamePage() {
-  // const [playersCount, setPlayersCount] = useState(2); // نام‌های بازیکنان
-  const [playersNames, setPlayersNames] = useState([]); // نام‌های بازیکنان
-  const [time, setTime] = useState(60); // زمان باقی‌مانده
-  const [timeLeft, setTimeLeft] = useState(60); // زمان باقی‌مانده
-  const [isNegativeScore, setIsNegativeScore] = useState(false); // نوع امتیاز (منفی یا غیر منفی)
-  // const [roundedCount, setRoundedCount] = useState(1); // تعداد دور بازی
-  // const [currentRound, setCurrentRound] = useState(0); // دور درحال بازی
+  const [availableWords, setAvailableWords] = useState([]);
+  const [playersNames, setPlayersNames] = useState([]);
+  const [time, setTime] = useState(60);
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [isNegativeScore, setIsNegativeScore] = useState(false);
+  const [currentPlayer, setCurrentPlayer] = useState(0);
+  const [gameStatus, setGameStatus] = useState("playing");
+  const [scores, setScores] = useState([0, 0]);
+  const [guessedWords, setGuessedWords] = useState([]);
+  const [currentWord, setCurrentWord] = useState("");
+  const [isStop, setIsStop] = useState(false);
+  const [swapWordUsed, setSwapWordUsed] = useState(true);
 
-  const [currentPlayer, setCurrentPlayer] = useState(0); // نوبت بازیکن
-  const [gameStatus, setGameStatus] = useState("playing"); // وضعیت بازی
-  const [scores, setScores] = useState([0, 0]); // امتیازات بازیکنان
-  const [guessedWords, setGuessedWords] = useState([]); // کلمات حدس زده شده
-  const [currentWord, setCurrentWord] = useState(""); // کلمه جاری برای حدس
-
-  const [isStop, setIsStop] = useState(false); // وضعیت استپ بازی
-  const [swapWordUsed, setSwapWordUsed] = useState(true); // برای کنترل دکمه تعویض کلمه
-
-  const radius = 50; // شعاع دایره
-  const strokeWidth = 10; // عرض خط دایره
-  const circumference = 2 * Math.PI * radius; // محیط دایره
+  const radius = 50;
+  const strokeWidth = 10;
+  const circumference = 2 * Math.PI * radius;
   const dashOffset = circumference - (timeLeft / time) * circumference;
-
   const navigate = useNavigate();
 
   // بارگذاری تنظیمات بازی از localStorage
   useEffect(() => {
     const savedSettings = loadGameSettingsHunter();
     if (savedSettings) {
-      // setPlayersCount(savedSettings.playersCount);
-      setPlayersNames(savedSettings.playersNames); // اسامی بازیکنان را بارگذاری کن
+      // اول کلمات رو بارگیری کن
+      const selectedWords = getSelectedWords(
+        savedSettings.selectedCategories || ["animals", "food"]
+      );
+      setAvailableWords(selectedWords);
+
+      // بعد بقیه تنظیمات رو بارگیری کن
+      setPlayersNames(savedSettings.playersNames);
       setTime(savedSettings.time);
-      setTimeLeft(savedSettings.timeLeft); // زمان باقی‌مانده را از ذخیره شده بارگذاری می‌کنیم
+      setTimeLeft(savedSettings.timeLeft);
       setIsNegativeScore(savedSettings.isNegativeScore);
-      // setRoundedCount(savedSettings.roundedCount);
       setCurrentPlayer(savedSettings.currentPlayer);
-      // setCurrentRound(savedSettings.currentRound);
       setGameStatus(savedSettings.gameStatus);
       setIsStop(savedSettings.gameStatus === "playing" ? false : true);
       setScores(savedSettings.scores);
-      setGuessedWords(savedSettings.guessedWords || []); // کلمات حدس زده شده را بارگذاری می‌کنیم
-      setCurrentWord(
-        savedSettings.currentWord ? savedSettings.currentWord : getRandomWord()
-      ); // کلمه جاری را از ذخیره شده بارگذاری می‌کنیم
+      setGuessedWords(savedSettings.guessedWords || []);
+
+      // در نهایت کلمه جاری رو تنظیم کن
+      if (savedSettings.currentWord) {
+        setCurrentWord(savedSettings.currentWord);
+      } else {
+        // اگر کلمه ذخیره نشده، یکی انتخاب کن
+        const randomWord = getRandomWordFromList(
+          selectedWords,
+          savedSettings.guessedWords || []
+        );
+        setCurrentWord(randomWord);
+      }
+
+      // تنظیم swapWordUsed بر اساس نوع بازی
+      if (!savedSettings.isNegativeScore) {
+        setSwapWordUsed(
+          savedSettings.swapWordUsed !== undefined
+            ? savedSettings.swapWordUsed
+            : true
+        );
+      }
     }
   }, []);
 
-  // تایمر بازی
-  useEffect(() => {
-    if (gameStatus === "playing" && !isStop) {
-      const savedSettings = loadGameSettingsHunter();
-      const interval = setInterval(() => {
-        if (timeLeft > 0) {
-          setTimeLeft(timeLeft - 1);
-          saveGameSettingsHunter({
-            playersCount: savedSettings.playersCount,
-            playersNames: savedSettings.playersNames,
-            time: savedSettings.time,
-            timeLeft: timeLeft - 1, // تغییر تایم مونده بازی
-            isNegativeScore: savedSettings.isNegativeScore,
-            roundedCount: savedSettings.roundedCount,
-            currentPlayer: savedSettings.currentPlayer,
-            currentRound: savedSettings.currentRound,
-            gameStatus: gameStatus,
-            scores: scores,
-            guessedWords: guessedWords,
-            currentWord: currentWord,
-          });
-        } else {
-          clearInterval(interval);
-          handleEndGame();
-        }
-      }, 1000);
+  // تابع کمکی برای دریافت کلمه رندوم
+  const getRandomWordFromList = (wordsList, usedWords) => {
+    const remainingWords = wordsList.filter(
+      (word) => !usedWords.includes(word)
+    );
 
-      return () => clearInterval(interval);
+    if (remainingWords.length === 0) {
+      return "پایان کلمات";
     }
-  }, [gameStatus, timeLeft, isStop]);
+
+    const randomIndex = Math.floor(Math.random() * remainingWords.length);
+    return remainingWords[randomIndex];
+  };
 
   // تابع برای دریافت کلمه رندوم از لیست کلمات
   const getRandomWord = () => {
-    const remainingWords = words.filter((word) => !guessedWords.includes(word));
+    const remainingWords = availableWords.filter(
+      (word) => !guessedWords.includes(word)
+    );
 
     if (remainingWords.length === 0) {
       setGameStatus("paused");
 
       const savedSettings = loadGameSettingsHunter();
       saveGameSettingsHunter({
-        playersCount: savedSettings.playersCount,
-        playersNames: savedSettings.playersNames,
-        time: savedSettings.time,
+        ...savedSettings,
         timeLeft: 0,
-        isNegativeScore: savedSettings.isNegativeScore,
-        roundedCount: savedSettings.roundedCount,
-        currentPlayer: savedSettings.currentPlayer,
-        currentRound: savedSettings.currentRound,
         gameStatus: "paused",
         scores: scores,
         guessedWords: guessedWords,
@@ -170,9 +114,6 @@ export default function GamePage() {
     const randomIndex = Math.floor(Math.random() * remainingWords.length);
     const selectedWord = remainingWords[randomIndex];
 
-    // به محض انتخاب، آن را به guessedWords اضافه کن
-    // setGuessedWords((prev) => [...prev, selectedWord]);
-
     return selectedWord;
   };
 
@@ -181,7 +122,7 @@ export default function GamePage() {
     if (isNegativeScore) {
       setScores((prevScores) => {
         const newScores = [...prevScores];
-        newScores[currentPlayer] -= 2; // در حالت منفی امتیاز 2 کم می‌شود
+        newScores[currentPlayer] -= 2;
         return newScores;
       });
     } else {
@@ -192,22 +133,18 @@ export default function GamePage() {
 
   // کلمه جدید
   const handleNextWord = () => {
-    setCurrentWord(getRandomWord());
+    const newWord = getRandomWord();
+    setCurrentWord(newWord);
 
     const savedSettings = loadGameSettingsHunter();
     saveGameSettingsHunter({
-      playersCount: savedSettings.playersCount,
-      playersNames: savedSettings.playersNames,
-      time: savedSettings.time,
+      ...savedSettings,
       timeLeft: timeLeft,
-      isNegativeScore: savedSettings.isNegativeScore,
-      roundedCount: savedSettings.roundedCount,
-      currentPlayer: savedSettings.currentPlayer,
-      currentRound: savedSettings.currentRound,
       gameStatus: gameStatus,
       scores: scores,
       guessedWords: guessedWords,
-      currentWord: currentWord,
+      currentWord: newWord,
+      swapWordUsed: swapWordUsed, // ذخیره وضعیت دکمه تعویض
     });
   };
 
@@ -216,13 +153,13 @@ export default function GamePage() {
     if (isNegativeScore) {
       setScores((prevScores) => {
         const newScores = [...prevScores];
-        newScores[currentPlayer] += 3; // در حالت منفی 3 امتیاز اضافه می‌شود
+        newScores[currentPlayer] += 3;
         return newScores;
       });
     } else {
       setScores((prevScores) => {
         const newScores = [...prevScores];
-        newScores[currentPlayer] += 1; // در حالت غیر منفی 1 امتیاز اضافه می‌شود
+        newScores[currentPlayer] += 1;
         return newScores;
       });
     }
@@ -235,52 +172,68 @@ export default function GamePage() {
     if (isNegativeScore) {
       setScores((prevScores) => {
         const newScores = [...prevScores];
-        newScores[currentPlayer] -= 1; // در حالت منفی امتیاز 1 کم می‌شود
+        newScores[currentPlayer] -= 1;
         return newScores;
       });
     }
+
     const savedSettings = loadGameSettingsHunter();
     saveGameSettingsHunter({
-      playersCount: savedSettings.playersCount,
-      playersNames: savedSettings.playersNames,
-      time: savedSettings.time,
+      ...savedSettings,
       timeLeft: timeLeft,
-      isNegativeScore: savedSettings.isNegativeScore,
-      roundedCount: savedSettings.roundedCount,
-      currentPlayer: savedSettings.currentPlayer,
-      currentRound: savedSettings.currentRound,
       gameStatus: gameStatus,
       scores: scores,
       guessedWords: guessedWords,
       currentWord: currentWord,
+      swapWordUsed: swapWordUsed,
     });
   };
 
-  // پایان بازی و نمایش جدول امتیازات
+  // تایمر بازی
+  useEffect(() => {
+    if (gameStatus === "playing" && !isStop && availableWords.length > 0) {
+      const interval = setInterval(() => {
+        if (timeLeft > 0) {
+          setTimeLeft(timeLeft - 1);
+
+          const savedSettings = loadGameSettingsHunter();
+          saveGameSettingsHunter({
+            ...savedSettings,
+            timeLeft: timeLeft - 1,
+            gameStatus: gameStatus,
+            scores: scores,
+            guessedWords: guessedWords,
+            currentWord: currentWord,
+            swapWordUsed: swapWordUsed,
+          });
+        } else {
+          clearInterval(interval);
+          handleEndGame();
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [gameStatus, timeLeft, isStop, availableWords]);
+
   const handleEndGame = () => {
     handlePauseGame();
     navigate("/HunterScoreBoeard", { replace: true });
   };
 
-  // استپ بازی
   const handlePauseGame = () => {
     setIsStop(true);
     setGameStatus("paused");
 
     const savedSettings = loadGameSettingsHunter();
     saveGameSettingsHunter({
-      playersCount: savedSettings.playersCount,
-      playersNames: savedSettings.playersNames,
-      time: savedSettings.time,
+      ...savedSettings,
       timeLeft: timeLeft,
-      isNegativeScore: savedSettings.isNegativeScore,
-      roundedCount: savedSettings.roundedCount,
-      currentPlayer: savedSettings.currentPlayer,
-      currentRound: savedSettings.currentRound,
       gameStatus: "paused",
       scores: scores,
       guessedWords: guessedWords,
       currentWord: currentWord,
+      swapWordUsed: swapWordUsed,
     });
   };
 
@@ -290,34 +243,17 @@ export default function GamePage() {
 
     const savedSettings = loadGameSettingsHunter();
     saveGameSettingsHunter({
-      playersCount: savedSettings.playersCount,
-      playersNames: savedSettings.playersNames,
-      time: savedSettings.time,
+      ...savedSettings,
       timeLeft: timeLeft,
-      isNegativeScore: savedSettings.isNegativeScore,
-      roundedCount: savedSettings.roundedCount,
-      currentPlayer: savedSettings.currentPlayer,
-      currentRound: savedSettings.currentRound,
       gameStatus: "playing",
       scores: scores,
       guessedWords: guessedWords,
       currentWord: currentWord,
+      swapWordUsed: swapWordUsed,
     });
   };
 
   return (
-    // <div className="flex flex-col items-center justify-center p-4">
-    //   {/* دکمه برای شروع یا توقف بازی */}
-    //   <button
-    //     onClick={() =>
-    //       // setGameStatus(gameStatus === "playing" ? "paused" : "playing")
-    //       // handlePauseGame();
-    //       handleContinueGame()
-    //     }
-    //     className="bg-blue-500 text-white p-4 rounded-xl mt-4 hover:bg-blue-700 transition-all duration-300 ease-out">
-    //     {gameStatus === "playing" ? "توقف بازی" : "ادامه بازی"}
-    //   </button>
-    // </div>
     <div className="bg-backgroundcolor w-screen min-h-screen">
       <div className="py-3">
         <div className="py-3 px-2 xs:px-4 flex justify-between items-center mx-2 bg-darkBackgroundcolor rounded-xl">
@@ -332,10 +268,10 @@ export default function GamePage() {
 
       <p className="text-center">نوبت: {playersNames[currentPlayer]}</p>
       <h3 className="text-center pb-2">امتیاز: {scores[currentPlayer]}</h3>
-      {/* ------------------------------- MIDDLE CIRCLE ------------------------------- */}
+
+      {/* دایره تایمر */}
       <div className="flex justify-center items-center">
-        <div className="relative w-40 h-40">
-          {/* دایره پس‌زمینه */}
+        <div className="relative w-50 h-50">
           <svg width="100%" height="100%" viewBox="0 0 120 120">
             <circle
               cx="60"
@@ -345,7 +281,6 @@ export default function GamePage() {
               strokeWidth={strokeWidth}
               fill="none"
             />
-            {/* دایره پیشرفت تایمر */}
             <circle
               cx="60"
               cy="60"
@@ -356,9 +291,8 @@ export default function GamePage() {
               strokeDasharray={circumference}
               strokeDashoffset={dashOffset}
               strokeLinecap="round"
-              transform="rotate(-90 60 60)" // برای شروع از بالای دایره
+              transform="rotate(-90 60 60)"
             />
-            {/* نمایش زمان داخل دایره */}
             <text
               x="50%"
               y="40%"
@@ -371,13 +305,15 @@ export default function GamePage() {
               x="50%"
               y="65%"
               textAnchor="middle"
-              className="text-md font-bold text-gray-800"
+              className="text-sm font-bold text-gray-800"
               dy=".3em">
               {currentWord}
             </text>
           </svg>
         </div>
       </div>
+
+      {/* دکمه‌های بازی */}
       <div className="flex flex-col sm:flex-row justify-center items-center gap-5 mt-4">
         <button
           onClick={handleCorrectAnswer}
@@ -399,15 +335,16 @@ export default function GamePage() {
           </button>
         )}
       </div>
-      {/* ----------------------------------------- GAME PAUSE ----------------------------------------- */}
+
+      {/* مودال توقف بازی */}
       {isStop && (
         <div className="absolute top-0 right-0 bg-black/80 backdrop-blur-md w-screen h-screen flex justify-center items-center">
           <div className="bg-backgroundcolor p-3 rounded-3xl">
             <h1 className="text-center text-xl font-bold pb-1">
-              بازی استپ خرده است
+              بازی استپ شده است
             </h1>
             <h3 className="text-sm">
-              یکی از گزینه های زیر را برای ادامه انتخاب کنید
+              یکی از گزینه‌های زیر را برای ادامه انتخاب کنید
             </h3>
             <div className="flex justify-center items-center gap-2">
               <button
@@ -425,21 +362,10 @@ export default function GamePage() {
               </button>
               <button
                 onClick={() => {
-                  // clearGameSettingsHunter();
                   const savedSettings = loadGameSettingsHunter();
                   saveGameSettingsHunter({
-                    playersCount: savedSettings.playersCount,
-                    playersNames: savedSettings.playersNames,
-                    time: savedSettings.time,
-                    timeLeft: savedSettings.timeLeft,
-                    isNegativeScore: savedSettings.isNegativeScore,
-                    roundedCount: savedSettings.roundedCount,
-                    currentPlayer: savedSettings.currentPlayer,
-                    currentRound: savedSettings.currentRound,
+                    ...savedSettings,
                     gameStatus: "playing",
-                    scores: savedSettings.scores,
-                    guessedWords: savedSettings.guessedWords,
-                    currentWord: savedSettings.currentWord,
                   });
                   navigate("/OfflineGames", { replace: true });
                 }}

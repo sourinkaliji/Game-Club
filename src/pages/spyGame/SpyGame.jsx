@@ -1,4 +1,3 @@
-// SpyGame.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -7,13 +6,11 @@ import {
   clearGameSettingsSpy,
 } from "./../utils";
 import { Icons } from "../../components/Icons";
-
-const words = ["سیب", "درخت", "آسمان", "کوه", "کتاب"];
+import { getSpySelectedWords } from "./spyWordCategories";
 
 export default function SpyGame() {
   const [players, setPlayers] = useState(3);
   const [spies, setSpies] = useState(1);
-
   const [duration, setDuration] = useState(60);
   const [current, setCurrent] = useState(0);
   const [revealed, setRevealed] = useState([]);
@@ -21,28 +18,41 @@ export default function SpyGame() {
   const [word, setWord] = useState("");
   const [showWord, setShowWord] = useState(false);
   const [spyIndexes, setSpyIndexes] = useState([]);
-  const [gameStatus, setGameStatus] = useState(null); //reveal | playing | stop | end
+  const [gameStatus, setGameStatus] = useState(null);
+  const [availableWords, setAvailableWords] = useState([]);
 
   const navigate = useNavigate();
 
-  const radius = 50; // شعاع دایره
-  const strokeWidth = 10; // عرض خط دایره
-  const circumference = 2 * Math.PI * radius; // محیط دایره
+  const radius = 50;
+  const strokeWidth = 10;
+  const circumference = 2 * Math.PI * radius;
   const dashOffset = circumference - (countdown / duration) * circumference;
+
+  // تابع کمکی برای انتخاب کلمه رندوم
+  const getRandomWordFromList = (wordsList) => {
+    if (wordsList.length === 0) return "کلمه موجود نیست";
+    const randomIndex = Math.floor(Math.random() * wordsList.length);
+    return wordsList[randomIndex];
+  };
 
   useEffect(() => {
     const savedSettings = loadGameSettingsSpy();
     if (savedSettings) {
+      // اول کلمات رو بارگیری کن
+      const selectedWords = getSpySelectedWords(
+        savedSettings.selectedCategories || ["animals", "food"]
+      );
+      setAvailableWords(selectedWords);
+
       setPlayers(savedSettings.players);
       setSpies(savedSettings.spies);
       setDuration(savedSettings.duration);
       setCountdown(savedSettings.countdown);
 
-      const chosenWord = words[Math.floor(Math.random() * words.length)];
-      const finalWord = savedSettings.word ? savedSettings.word : chosenWord;
-      setWord(finalWord);
+      const chosenWord =
+        savedSettings.word || getRandomWordFromList(selectedWords);
+      setWord(chosenWord);
 
-      const spySet = new Set();
       let spyArray;
       if (savedSettings.spyIndexes) {
         spyArray = savedSettings.spyIndexes;
@@ -55,15 +65,14 @@ export default function SpyGame() {
       }
       setSpyIndexes(spyArray);
 
-      const revealedInfo = Array.from({ length: players }, (_, i) =>
-        spySet.has(i) ? null : chosenWord
+      const spySet = new Set(spyArray);
+      const revealedInfo = Array.from(
+        { length: savedSettings.players },
+        (_, i) => (spySet.has(i) ? null : chosenWord)
       );
-      setRevealed(
-        savedSettings.revealed ? savedSettings.revealed : revealedInfo
-      );
+      setRevealed(savedSettings.revealed || revealedInfo);
 
       setGameStatus(savedSettings.gameStatus);
-      //   setPhase("setup");
     }
   }, []);
 
@@ -72,13 +81,10 @@ export default function SpyGame() {
       const timer = setTimeout(() => {
         setCountdown((c) => {
           const newTime = c - 1;
+          const savedSettings = loadGameSettingsSpy();
           saveGameSettingsSpy({
-            players: players,
-            spies: spies,
-            duration: duration,
+            ...savedSettings,
             countdown: newTime,
-            word: word,
-            spyIndexes: spyIndexes,
             gameStatus: "playing",
           });
           return newTime;
@@ -93,12 +99,8 @@ export default function SpyGame() {
       setShowWord(false);
       const savedSettings = loadGameSettingsSpy();
       saveGameSettingsSpy({
-        players: savedSettings.players,
-        spies: savedSettings.spies,
-        duration: savedSettings.duration,
+        ...savedSettings,
         countdown: countdown,
-        word: word,
-        spyIndexes: spyIndexes,
         gameStatus: "end",
         revealed: revealed,
       });
@@ -114,12 +116,8 @@ export default function SpyGame() {
     } else {
       const savedSettings = loadGameSettingsSpy();
       saveGameSettingsSpy({
-        players: savedSettings.players,
-        spies: savedSettings.spies,
-        duration: savedSettings.duration,
+        ...savedSettings,
         countdown: countdown,
-        word: word,
-        spyIndexes: spyIndexes,
         gameStatus: "playing",
         revealed: revealed,
       });
@@ -131,12 +129,8 @@ export default function SpyGame() {
     setGameStatus("stop");
     const savedSettings = loadGameSettingsSpy();
     saveGameSettingsSpy({
-      players: savedSettings.players,
-      spies: savedSettings.spies,
-      duration: savedSettings.duration,
+      ...savedSettings,
       countdown: countdown,
-      word: word,
-      spyIndexes: spyIndexes,
       gameStatus: "stop",
       revealed: revealed,
     });
@@ -146,12 +140,8 @@ export default function SpyGame() {
     setGameStatus("playing");
     const savedSettings = loadGameSettingsSpy();
     saveGameSettingsSpy({
-      players: savedSettings.players,
-      spies: savedSettings.spies,
-      duration: savedSettings.duration,
+      ...savedSettings,
       countdown: countdown,
-      word: word,
-      spyIndexes: spyIndexes,
       gameStatus: "playing",
       revealed: revealed,
     });
@@ -159,10 +149,9 @@ export default function SpyGame() {
 
   const resetGame = () => {
     const savedSettings = loadGameSettingsSpy();
-    // ---------------------------------------------
     setCountdown(savedSettings.duration);
 
-    const chosenWord = words[Math.floor(Math.random() * words.length)];
+    const chosenWord = getRandomWordFromList(availableWords);
     setWord(chosenWord);
 
     const spySet = new Set();
@@ -178,11 +167,9 @@ export default function SpyGame() {
     setGameStatus("reveal");
     setCurrent(0);
     setShowWord(false);
-    // ---------------------------------------------
+
     saveGameSettingsSpy({
-      players: savedSettings.players,
-      spies: savedSettings.spies,
-      duration: savedSettings.duration,
+      ...savedSettings,
       countdown: savedSettings.duration,
       word: chosenWord,
       spyIndexes: spyArray,
@@ -191,11 +178,9 @@ export default function SpyGame() {
     });
   };
 
+  // باقی کد JSX مشابه قبل...
   return (
-    <div
-      className="relative w-screen min-h-screen bg-backgroundcolor"
-      //p-6 flex flex-col gap-4 items-center
-    >
+    <div className="relative w-screen min-h-screen bg-backgroundcolor">
       {gameStatus === "reveal" ? (
         <div className="text-center pt-3">
           <div className="py-3 px-2 xs:px-4 flex justify-between items-center mx-2 mb-3 bg-darkBackgroundcolor rounded-xl">
@@ -245,19 +230,22 @@ export default function SpyGame() {
               <li key={index}>بازیکن {index + 1}</li>
             ))}
           </ul>
-          <button
-            className="mt-4 px-4 py-2 bg-gray-700 text-white rounded"
-            onClick={resetGame}>
-            بازی مجدد
-          </button>
-          <button
-            onClick={() => {
-              navigate("/OfflineGames", { replace: true });
-              clearGameSettingsSpy();
-            }}
-            className="text-primary border-2 border-primary py-2 px-4 rounded-full mt-4 hover:border-darkPrimary hover:text-darkPrimary hover:scale-105 transition-all duration-300 ease-out">
-            خروج از بازی
-          </button>
+          <p className="mt-2 text-lg font-bold">کلمه: {word}</p>
+          <div className="flex flex-col gap-2 mt-4 items-center">
+            <button
+              className="px-4 py-2 bg-gray-700 text-white rounded"
+              onClick={resetGame}>
+              بازی مجدد
+            </button>
+            <button
+              onClick={() => {
+                navigate("/OfflineGames", { replace: true });
+                clearGameSettingsSpy();
+              }}
+              className="text-primary border-2 border-primary py-2 px-4 rounded-full hover:border-darkPrimary hover:text-darkPrimary hover:scale-105 transition-all duration-300 ease-out">
+              خروج از بازی
+            </button>
+          </div>
         </div>
       ) : (
         <div>
@@ -271,33 +259,30 @@ export default function SpyGame() {
               </button>
             </div>
 
-            {/* ------------------------------- MIDDLE CIRCLE ------------------------------- */}
+            {/* دایره تایمر */}
             <div className="flex justify-center items-center">
               <div className="relative w-40 h-40">
-                {/* دایره پس‌زمینه */}
                 <svg width="100%" height="100%" viewBox="0 0 120 120">
                   <circle
                     cx="60"
                     cy="60"
                     r={radius}
-                    stroke="#d4bdac" // Tailwind gray-200
+                    stroke="#d4bdac"
                     strokeWidth={strokeWidth}
                     fill="none"
                   />
-                  {/* دایره پیشرفت تایمر */}
                   <circle
                     cx="60"
                     cy="60"
                     r={radius}
-                    stroke="#536493" // رنگ سبز برای پیشرفت
+                    stroke="#536493"
                     strokeWidth={strokeWidth}
                     fill="none"
                     strokeDasharray={circumference}
                     strokeDashoffset={dashOffset}
                     strokeLinecap="round"
-                    transform="rotate(-90 60 60)" // برای شروع از بالای دایره
+                    transform="rotate(-90 60 60)"
                   />
-                  {/* نمایش زمان داخل دایره */}
                   <text
                     x="50%"
                     y="50%"
@@ -309,7 +294,6 @@ export default function SpyGame() {
                 </svg>
               </div>
             </div>
-            {/* ----------------------------------------------------- */}
 
             <div className="flex flex-col items-center gap-3 mt-4">
               <button
@@ -317,12 +301,8 @@ export default function SpyGame() {
                   setGameStatus("end");
                   const savedSettings = loadGameSettingsSpy();
                   saveGameSettingsSpy({
-                    players: savedSettings.players,
-                    spies: savedSettings.spies,
-                    duration: savedSettings.duration,
+                    ...savedSettings,
                     countdown: countdown,
-                    word: word,
-                    spyIndexes: spyIndexes,
                     gameStatus: "end",
                     revealed: revealed,
                   });
@@ -332,23 +312,21 @@ export default function SpyGame() {
               </button>
             </div>
           </div>
-          {/* ----------------------------------------- GAME PAUSE ----------------------------------------- */}
+
+          {/* مودال توقف بازی */}
           {gameStatus === "stop" && (
             <div className="absolute top-0 right-0 bg-black/80 backdrop-blur-md w-screen h-screen flex justify-center items-center">
               <div className="bg-backgroundcolor p-3 rounded-3xl">
                 <h1 className="text-center text-xl font-bold pb-1">
-                  بازی استپ خرده است
+                  بازی استپ شده است
                 </h1>
                 <h3 className="text-sm">
-                  یکی از گزینه های زیر را برای ادامه انتخاب کنید
+                  یکی از گزینه‌های زیر را برای ادامه انتخاب کنید
                 </h3>
                 <div className="flex justify-center items-center gap-2">
                   <button
                     onClick={() => resumeGame()}
-                    className="bg-primary text-white text-sm border-2 border-primary px-3
-                  py-2 rounded-full mt-4 hover:bg-darkPrimary
-                  hover:border-darkPrimary hover:scale-105 transition-all
-                  duration-300 ease-out">
+                    className="bg-primary text-white text-sm border-2 border-primary px-3 py-2 rounded-full mt-4 hover:bg-darkPrimary hover:border-darkPrimary hover:scale-105 transition-all duration-300 ease-out">
                     ادامه بازی
                   </button>
                   <button
@@ -363,14 +341,8 @@ export default function SpyGame() {
                       navigate("/OfflineGames", { replace: true });
                       const savedSettings = loadGameSettingsSpy();
                       saveGameSettingsSpy({
-                        players: savedSettings.players,
-                        spies: savedSettings.spies,
-                        duration: savedSettings.duration,
-                        countdown: countdown,
-                        word: word,
-                        spyIndexes: spyIndexes,
+                        ...savedSettings,
                         gameStatus: "playing",
-                        revealed: revealed,
                       });
                     }}
                     className="text-primary border-2 border-primary text-sm py-2 px-3 rounded-full mt-4 hover:border-darkPrimary hover:text-darkPrimary hover:scale-105 transition-all duration-300 ease-out">

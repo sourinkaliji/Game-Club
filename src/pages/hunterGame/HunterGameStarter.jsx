@@ -6,28 +6,49 @@ import {
   clearGameSettingsHunter,
 } from "../utils";
 import { Icons } from "../../components/Icons";
+import {
+  wordCategories,
+  loadWordCategories,
+  saveWordCategories,
+  getSelectedWords,
+} from "./wordCategories";
+import MyListManager from "./MyListManager";
 
 export default function HunterGameStarter() {
   const [playersCount, setPlayersCount] = useState(2);
   const [time, setTime] = useState(60);
   const [isNegativeScore, setIsNegativeScore] = useState(false);
   const [roundedCount, setRoundedCount] = useState(1);
-
   const [playersNames, setPlayersNames] = useState(["بازیکن 1", "بازیکن 2"]);
   const [isGameSaved, setIsGameSaved] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  // استیت‌های جدید برای دسته‌بندی کلمات
+  const [selectedCategories, setSelectedCategories] = useState([
+    "animals",
+    "food",
+  ]);
+  const [categories, setCategories] = useState(wordCategories);
+  const [showMyListManager, setShowMyListManager] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     const savedSettings = loadGameSettingsHunter();
+    const loadedCategories = loadWordCategories();
+    setCategories(loadedCategories);
+
     if (savedSettings) {
       setIsGameSaved(true);
+      // بارگیری دسته‌بندی‌های انتخاب شده
+      if (savedSettings.selectedCategories) {
+        setSelectedCategories(savedSettings.selectedCategories);
+      }
     } else {
       generatePlayerNames();
     }
   }, []);
 
-  // ایجاد اسم پیش‌فرض بازیکنان
   const generatePlayerNames = () => {
     const names = [];
     for (let i = 1; i <= playersCount; i++) {
@@ -36,7 +57,30 @@ export default function HunterGameStarter() {
     setPlayersNames(names);
   };
 
-  // ذخیره تنظیمات در localStorage
+  // تابع برای تغییر انتخاب دسته‌بندی
+  const handleCategoryToggle = (categoryKey) => {
+    setSelectedCategories((prev) => {
+      if (prev.includes(categoryKey)) {
+        return prev.filter((key) => key !== categoryKey);
+      } else {
+        return [...prev, categoryKey];
+      }
+    });
+  };
+
+  // تابع برای مدیریت لیست شخصی
+  const handleMyListWordsChange = (newWords) => {
+    const updatedCategories = {
+      ...categories,
+      myList: {
+        ...categories.myList,
+        words: newWords,
+      },
+    };
+    setCategories(updatedCategories);
+    saveWordCategories(updatedCategories);
+  };
+
   const saveSettings = () => {
     const updatedNames = playersNames.map((name, index) => {
       return name.trim() === "" ? `بازیکن ${index + 1}` : name;
@@ -44,19 +88,20 @@ export default function HunterGameStarter() {
 
     const settings = {
       playersCount: playersCount,
-      playersNames: updatedNames, // ذخیره نام‌های بازیکنان بررسی‌شده
+      playersNames: updatedNames,
       time: time,
-      timeLeft: time, // زمان باقی‌مانده
+      timeLeft: time,
       isNegativeScore: isNegativeScore,
       roundedCount: roundedCount,
-      currentPlayer: 0, // نوبت بازیکن اول
-      currentRound: 0, // نوبت دور
-      gameStatus: "playing", // وضعیت بازی
-      scores: Array(playersCount).fill(0), // امتیازات اولیه برای هر بازیکن
-      guessedWords: "",
+      currentPlayer: 0,
+      currentRound: 0,
+      gameStatus: "playing",
+      scores: Array(playersCount).fill(0),
+      guessedWords: [],
       currentWord: "",
+      selectedCategories: selectedCategories, // اضافه کردن دسته‌بندی‌های انتخاب شده
     };
-    saveGameSettingsHunter(settings); // ذخیره تنظیمات در localStorage
+    saveGameSettingsHunter(settings);
   };
 
   const handleStartGame = () => {
@@ -68,6 +113,18 @@ export default function HunterGameStarter() {
       setErrorMessage("حداکثر تعداد دور بازی 20 دور است.");
       return;
     }
+    if (selectedCategories.length === 0) {
+      setErrorMessage("حداقل یک دسته‌بندی انتخاب کنید.");
+      return;
+    }
+
+    // بررسی اینکه آیا کلمات کافی وجود دارد
+    const selectedWords = getSelectedWords(selectedCategories);
+    if (selectedWords.length === 0) {
+      setErrorMessage("دسته‌بندی‌های انتخاب شده کلمه‌ای ندارند.");
+      return;
+    }
+
     saveSettings();
     handleContinueGame();
   };
@@ -76,38 +133,43 @@ export default function HunterGameStarter() {
     navigate("/HunterGamePage");
   };
 
-  // تابع برای انتخاب زمان بازی
   const handleTimeChange = (selectedTime) => {
     setTime(selectedTime);
   };
 
-  // تابع برای تغییر تعداد بازیکنان
   const handlePlayersCountChange = (e) => {
-    const value = Math.min(20, Math.max(2, Number(e.target.value))); // محدودیت بین 2 تا 20
+    const value = Math.min(20, Math.max(2, Number(e.target.value)));
     setPlayersCount(value);
     if (value <= 20) {
-      setErrorMessage(""); // پاک کردن پیام خطا
+      setErrorMessage("");
     }
   };
 
-  // تابع برای تغییر تعداد دور بازی
   const handleRoundedCountChange = (e) => {
-    const value = Math.min(20, Math.max(1, Number(e.target.value))); // محدودیت بین 1 تا 20
+    const value = Math.min(20, Math.max(1, Number(e.target.value)));
     setRoundedCount(value);
     if (value <= 20) {
-      setErrorMessage(""); // پاک کردن پیام خطا
+      setErrorMessage("");
     }
   };
 
-  // تابع برای بررسی و اطمینان از اینکه نام بازیکن خالی نباشد
   const handlePlayerNameChange = (index, name) => {
     const updatedNames = [...playersNames];
-    updatedNames[index] = name; // تغییر نام بازیکن
+    updatedNames[index] = name;
     setPlayersNames(updatedNames);
   };
 
   return (
     <>
+      {/* مدیریت لیست شخصی */}
+      {showMyListManager && (
+        <MyListManager
+          myWords={categories.myList.words}
+          onWordsChange={handleMyListWordsChange}
+          onClose={() => setShowMyListManager(false)}
+        />
+      )}
+
       {/* نمایش پیغام و دکمه‌ها برای ادامه بازی یا شروع بازی جدید */}
       {isGameSaved && (
         <div className="absolute top-0 right-0 bg-black/80 backdrop-blur-md w-screen h-screen flex justify-center items-center">
@@ -133,10 +195,8 @@ export default function HunterGameStarter() {
           </div>
         </div>
       )}
+
       <div className="bg-backgroundcolor w-screen min-h-screen">
-        {/* <h2 className="text-center text-2xl font-bold pt-4 pb-6">
-          تنظیمات بازی هانتر
-        </h2> */}
         <div className="py-3">
           <div className="py-3 px-2 xs:px-4 flex justify-between items-center mx-2 bg-darkBackgroundcolor rounded-xl">
             <h2 className="text-center text-2xl font-bold">تنظیمات هانتر</h2>
@@ -151,7 +211,7 @@ export default function HunterGameStarter() {
 
         <div className="h-fit flex justify-center items-center">
           <div className="bg-darkBackgroundcolor p-4 rounded-3xl overflow-auto max-h-[90vh] flex flex-col gap-5">
-            {/* فرم تنظیمات برای شروع بازی جدید */}
+            {/* تعداد بازیکنان */}
             <div className="text-center">
               <label
                 htmlFor="playersCount"
@@ -168,12 +228,9 @@ export default function HunterGameStarter() {
                 max="20"
                 className="text-center text-white text-3xl font-bold w-20 border-2 rounded-full px-4 pt-2"
               />
-              {errorMessage && (
-                <p className="text-red-500 mt-2">{errorMessage}</p>
-              )}
             </div>
 
-            {/* انتخاب زمان بازی با استفاده از دکمه‌های radio */}
+            {/* انتخاب زمان بازی */}
             <div className="text-center">
               <label htmlFor="time" className="block mb-1 font-bold text-xl">
                 زمان بازی
@@ -209,10 +266,12 @@ export default function HunterGameStarter() {
               </div>
             </div>
 
-            {/* انتخاب نوع بازی با استفاده از دکمه‌های radio */}
+            {/* انتخاب نوع بازی و تعداد دور */}
             <div className="flex justify-around items-center">
               <div className="text-center">
-                <label htmlFor="time" className="block mb-1 font-bold text-xl">
+                <label
+                  htmlFor="gameType"
+                  className="block mb-1 font-bold text-xl">
                   نوع بازی
                 </label>
                 <div className="flex justify-center items-center">
@@ -222,32 +281,65 @@ export default function HunterGameStarter() {
                         ? "border-white"
                         : "bg-primary border-primary"
                     } text-xl font-bold p-2 w-30 rounded-full border-2 hover:bg-darkPrimary text-white transition-all duration-300`}
-                    onClick={() =>
-                      setIsNegativeScore(
-                        isNegativeScore === false ? true : false
-                      )
-                    }>
+                    onClick={() => setIsNegativeScore(!isNegativeScore)}>
                     {isNegativeScore === false ? "غیر منفی" : "منفی"}
                   </button>
                 </div>
               </div>
               <div className="text-center">
                 <label
-                  htmlFor="playersCount"
+                  htmlFor="roundCount"
                   className="block mb-1 font-bold text-xl">
                   تعداد دور
                 </label>
                 <input
                   type="number"
-                  id="playersCount"
+                  id="roundCount"
                   value={roundedCount}
                   onChange={handleRoundedCountChange}
-                  // onBlur={generatePlayerNames}
                   min="1"
                   max="20"
                   className="text-center text-white text-3xl font-bold w-30 border-2 rounded-full px-2 pt-2"
                 />
               </div>
+            </div>
+
+            {/* انتخاب دسته‌بندی کلمات */}
+            <div className="text-center">
+              <label className="block mb-3 font-bold text-xl">
+                انتخاب دسته‌بندی کلمات
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.entries(categories).map(([key, category]) => (
+                  <div key={key} className="flex items-center gap-2">
+                    <button
+                      className={`flex-1 p-2 rounded-xl border-2 transition-all duration-300  hover:bg-darkPrimary hover:border-darkPrimary ${
+                        selectedCategories.includes(key)
+                          ? "bg-primary border-primary text-white"
+                          : "bg-darkBackgroundcolor border-white text-white"
+                      }`}
+                      onClick={() => handleCategoryToggle(key)}>
+                      <span className="font-bold">{category.name}</span>
+                      <span className="text-sm block">
+                        ({category.words.length} کلمه)
+                      </span>
+                    </button>
+                    {key === "myList" && (
+                      <button
+                        onClick={() => setShowMyListManager(true)}
+                        className="p-2 bg-subPrimary text-white rounded-xl hover:bg-slowSubPrimary transition-all duration-300">
+                        <Icons.edit className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {selectedCategories.length > 0 && (
+                <p className="text-sm mt-2">
+                  مجموع کلمات انتخاب شده:{" "}
+                  {getSelectedWords(selectedCategories).length}
+                </p>
+              )}
             </div>
 
             {/* اسم بازیکنان */}
@@ -268,6 +360,12 @@ export default function HunterGameStarter() {
                 ))}
               </ul>
             </div>
+
+            {errorMessage && (
+              <p className="text-red-500 text-center font-bold">
+                {errorMessage}
+              </p>
+            )}
 
             <button
               onClick={handleStartGame}
