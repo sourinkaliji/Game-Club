@@ -39,7 +39,7 @@ function HomePage() {
             <Btn
               title={"بازی آنلاین"}
               description={"بازی با دوستان بصورت جهانی"}
-              to="/Login"
+              to="/OnlineGames"
             />
           </div>
         </div>

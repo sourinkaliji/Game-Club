@@ -53,3 +53,30 @@ export const loadGameSettingsSpy = () => {
 export const clearGameSettingsSpy = () => {
   localStorage.removeItem("SpyGameSettings");
 };
+
+// TIC TAC TOE ----------------------------------------------------
+export const saveTicTacToeSettings = (settings) => {
+  try {
+    localStorage.setItem("tic-tac-toe-settings", JSON.stringify(settings));
+  } catch (error) {
+    console.error("Error saving Tic Tac Toe settings:", error);
+  }
+};
+
+export const loadTicTacToeSettings = () => {
+  try {
+    const settings = localStorage.getItem("tic-tac-toe-settings");
+    return settings ? JSON.parse(settings) : null;
+  } catch (error) {
+    console.error("Error loading Tic Tac Toe settings:", error);
+    return null;
+  }
+};
+
+export const clearTicTacToeSettings = () => {
+  try {
+    localStorage.removeItem("tic-tac-toe-settings");
+  } catch (error) {
+    console.error("Error clearing Tic Tac Toe settings:", error);
+  }
+};

@@ -9,48 +9,28 @@ const games = [
     page: "/Rps",
   },
   {
-    name: "هانتر",
+    name: "دوز",
     image: "./HunterGame.png",
     page: "/HunterGameStarter",
   },
   {
-    name: "سودوکو",
+    name: "اوتلو",
     image:
       "https://upload.wikimedia.org/wikipedia/commons/5/5d/Scrabble_game_in_progress.jpg",
     page: "/SudokuGame",
   },
-  {
-    name: "جاسوس",
-    image: "https://upload.wikimedia.org/wikipedia/commons/3/3c/Ludo_board.jpg",
-    page: "/SpySetup",
-  },
-  {
-    name: "Badminton",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/6/6d/Badminton_court.jpg",
-    page: "/TicTacToe",
-  },
-  // {
-  //   name: "Snakes and Ladders",
-  //   image:
-  //     "https://upload.wikimedia.org/wikipedia/commons/1/1c/Snakes_and_Ladders.jpg",
-  // },
-  // {
-  //   name: "Scrabble",
-  //   image: "",
-  // },
-  // {
-  //   name: "Monopoly",
-  //   image:
-  //     "https://upload.wikimedia.org/wikipedia/commons/2/2c/Monopoly_board_on_white_bg.jpg",
-  // },
+  //   {
+  //     name: "جاسوس",
+  //     image: "https://upload.wikimedia.org/wikipedia/commons/3/3c/Ludo_board.jpg",
+  //     page: "/SpySetup",
+  //   },
 ];
 
-export default function OfflineGames() {
+export default function OnlineGames() {
   return (
     <div className="p-2 bg-backgroundcolor w-screen min-h-screen">
       <div className="py-3 px-2 xs:px-4 flex justify-between items-center mt-1 mb-5 bg-darkBackgroundcolor rounded-xl">
-        <h2 className="text-center text-2xl font-bold">بازی های آفلاین</h2>
+        <h2 className="text-center text-2xl font-bold">بازی های آنلاین</h2>
         <Link
           className="flex justify-center items-center border-2 rounded-3xl py-1 pl-2 pr-3 hover:shadow-lg hover:scale-105 transition-all duration-300 ease-out bg-darkBackgroundcolor hover:bg-backgroundcolor"
           to={"/"}>
