@@ -170,7 +170,7 @@ export default function Rps() {
           <div className="absolute top-0 right-0 bg-black/80 backdrop-blur-md w-screen h-screen flex justify-center items-center">
             <div className="bg-backgroundcolor p-3 rounded-3xl">
               <h1 className="text-center text-xl font-bold pb-1">
-                بازی استپ خرده است
+                بازی متوقف شده است
               </h1>
               <h3 className="text-sm">
                 یکی از گزینه های زیر را برای ادامه انتخاب کنید

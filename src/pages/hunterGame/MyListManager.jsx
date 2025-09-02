@@ -49,7 +49,7 @@ export default function MyListManager({ myWords, onWordsChange, onClose }) {
         {/* لیست کلمات */}
         <div className="space-y-2 max-h-60 overflow-y-auto">
           {myWords.length === 0 ? (
-            <p className="text-center text-backgroundcolor">
+            <p className="text-center text-subPrimary">
               هیچ کلمه‌ای اضافه نشده است
             </p>
           ) : (
@@ -60,7 +60,7 @@ export default function MyListManager({ myWords, onWordsChange, onClose }) {
                 <span className="text-backgroundcolor">{word}</span>
                 <button
                   onClick={() => handleRemoveWord(index)}
-                  className="text-red-300 hover:text-red-500">
+                  className="text-red-300 hover:text-white">
                   <Icons.trash className="w-4 h-4" />
                 </button>
               </div>

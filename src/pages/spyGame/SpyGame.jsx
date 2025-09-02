@@ -196,13 +196,13 @@ export default function SpyGame() {
           <p>بازیکن {current + 1}</p>
           <p className="text-xl mt-2">
             {!showWord
-              ? "👁️ روی دکمه کلیک کن تا ببینی!"
+              ? "روی دکمه کلیک کن تا ببینی!"
               : revealed[current]
               ? `کلمه: ${revealed[current]}`
-              : "❗ تو جاسوسی!"}
+              : "تو جاسوسی!"}
           </p>
           <button
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
+            className="mt-4 px-4 py-2 bg-subPrimary rounded-2xl hover:scale-105 hover:bg-slowSubPrimary transition-all duration-300 ease-out text-white"
             onClick={!showWord ? handleRevealClick : nextPlayer}>
             {!showWord
               ? "نمایش کلمه"
@@ -231,9 +231,9 @@ export default function SpyGame() {
             ))}
           </ul>
           <p className="mt-2 text-lg font-bold">کلمه: {word}</p>
-          <div className="flex flex-col gap-2 mt-4 items-center">
+          <div className="flex justify-center items-center gap-2 mt-4 items-center">
             <button
-              className="px-4 py-2 bg-gray-700 text-white rounded"
+              className="px-4 py-2 bg-subPrimary hover:bg-slowSubPrimary text-white rounded-3xl border-2 border-subPrimary hover:border-slowSubPrimary hover:scale-105 transition-all duration-300 ease-out"
               onClick={resetGame}>
               بازی مجدد
             </button>
@@ -307,7 +307,7 @@ export default function SpyGame() {
                     revealed: revealed,
                   });
                 }}
-                className="px-4 py-2 bg-red-600 text-white rounded">
+                className="px-4 py-2 bg-darkPrimary rounded-2xl text-white hover:scale-105 hover:bg-primary transition-all duration-300 ease-out">
                 جاسوس پیدا شد!
               </button>
             </div>
@@ -318,7 +318,7 @@ export default function SpyGame() {
             <div className="absolute top-0 right-0 bg-black/80 backdrop-blur-md w-screen h-screen flex justify-center items-center">
               <div className="bg-backgroundcolor p-3 rounded-3xl">
                 <h1 className="text-center text-xl font-bold pb-1">
-                  بازی استپ شده است
+                  بازی متوقف شده است
                 </h1>
                 <h3 className="text-sm">
                   یکی از گزینه‌های زیر را برای ادامه انتخاب کنید

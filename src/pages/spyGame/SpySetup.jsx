@@ -135,7 +135,7 @@ const SpySetup = () => {
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => navigate("/SpyGame")}
-                className="bg-pink-600 text-white py-2 rounded-xl hover:bg-pink-700 transition">
+                className="bg-primary text-white py-2 rounded-xl hover:bg-darkPrimaryk transition">
                 ادامه بازی
               </button>
               <button
@@ -165,9 +165,9 @@ const SpySetup = () => {
         <div className="flex flex-col items-center justify-center gap-6 px-6">
           <div className="text-center">
             <h1 className="text-2xl font-bold">🎭 جاسوس</h1>
-            <p className="text-primary text-sm mt-2">
+            {/* <p className="text-primary text-sm mt-2">
               برای آموزش بازی کلیک کنید!
-            </p>
+            </p> */}
           </div>
 
           <div className="flex flex-col gap-4">
@@ -222,14 +222,14 @@ const SpySetup = () => {
             <label className="block mb-3 font-bold text-xl">
               انتخاب دسته‌بندی کلمات
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {Object.entries(categories).map(([key, category]) => (
                 <div key={key} className="flex items-center gap-2">
                   <button
                     className={`flex-1 p-2 rounded-xl border-2 transition-all duration-300 text-sm ${
                       selectedCategories.includes(key)
-                        ? "bg-pink-600 border-pink-600 text-white"
-                        : "bg-gray-200 border-gray-300 text-gray-800 hover:bg-pink-600 hover:border-pink-600 hover:text-white"
+                        ? "bg-primary border-primary text-white hover:bg-darkPrimary hover:border-darkPrimary"
+                        : "bg-backgroundcolor border-black text-gray-800 hover:bg-darkPrimary hover:border-darkPrimary hover:text-white"
                     }`}
                     onClick={() => handleCategoryToggle(key)}>
                     <span className="font-bold">{category.name}</span>
@@ -240,7 +240,7 @@ const SpySetup = () => {
                   {key === "myList" && (
                     <button
                       onClick={() => setShowMyListManager(true)}
-                      className="p-2 bg-pink-700 text-white rounded-xl hover:bg-pink-800 transition-all duration-300">
+                      className="p-2 bg-subPrimary text-white rounded-xl hover:bg-slowSubPrimary transition-all duration-300">
                       <Icons.edit className="w-4 h-4" />
                     </button>
                   )}

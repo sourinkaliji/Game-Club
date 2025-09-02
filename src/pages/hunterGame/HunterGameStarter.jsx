@@ -309,7 +309,7 @@ export default function HunterGameStarter() {
               <label className="block mb-3 font-bold text-xl">
                 انتخاب دسته‌بندی کلمات
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {Object.entries(categories).map(([key, category]) => (
                   <div key={key} className="flex items-center gap-2">
                     <button
@@ -345,7 +345,7 @@ export default function HunterGameStarter() {
             {/* اسم بازیکنان */}
             <div className="text-center">
               <h3 className="mb-1 font-bold text-xl">اسامی بازیکنان</h3>
-              <ul className="grid grid-cols-2 gap-2">
+              <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
                 {playersNames.map((name, index) => (
                   <li key={index}>
                     <input
@@ -354,7 +354,7 @@ export default function HunterGameStarter() {
                       onChange={(e) =>
                         handlePlayerNameChange(index, e.target.value)
                       }
-                      className="w-35 border-2 rounded-3xl px-2 py-1"
+                      className="w-35 border-2 rounded-3xl px-2 py-2"
                     />
                   </li>
                 ))}

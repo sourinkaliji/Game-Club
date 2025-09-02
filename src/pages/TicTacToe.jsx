@@ -392,7 +392,7 @@ export default function TicTacToe() {
         <div className="absolute top-0 right-0 bg-black/80 backdrop-blur-md w-screen h-screen flex justify-center items-center">
           <div className="bg-backgroundcolor p-3 rounded-3xl">
             <h1 className="text-center text-xl font-bold pb-1">
-              بازی استپ شده است
+              بازی متوقف شده است
             </h1>
             <h3 className="text-sm">
               یکی از گزینه‌های زیر را برای ادامه انتخاب کنید
@@ -410,7 +410,7 @@ export default function TicTacToe() {
               </button>
               <button
                 onClick={() => {
-                  PlayBtn();
+                  // PlayBtn();
                   navigate("/OfflineGames", { replace: true });
                 }}
                 className="text-primary border-2 text-sm border-primary py-2 px-3 rounded-full mt-4 hover:border-darkPrimary hover:text-darkPrimary hover:scale-105 transition-all duration-300 ease-out cursor-pointer">

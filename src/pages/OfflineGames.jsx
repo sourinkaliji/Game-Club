@@ -15,19 +15,17 @@ const games = [
   },
   {
     name: "سودوکو",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/5/5d/Scrabble_game_in_progress.jpg",
+    image: "Sudoku.png",
     page: "/SudokuGame",
   },
   {
     name: "جاسوس",
-    image: "https://upload.wikimedia.org/wikipedia/commons/3/3c/Ludo_board.jpg",
+    image: "Spy.png",
     page: "/SpySetup",
   },
   {
-    name: "Badminton",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/6/6d/Badminton_court.jpg",
+    name: "دوز",
+    image: "TicTacToe.png",
     page: "/TicTacToe",
   },
   // {
@@ -49,10 +47,12 @@ const games = [
 export default function OfflineGames() {
   return (
     <div className="p-2 bg-backgroundcolor w-screen min-h-screen">
-      <div className="py-3 px-2 xs:px-4 flex justify-between items-center mt-1 mb-5 bg-darkBackgroundcolor rounded-xl">
-        <h2 className="text-center text-2xl font-bold">بازی های آفلاین</h2>
+      <div className="py-3 px-2 xs:px-4 flex justify-between items-center mt-1 mb-5 bg-slowSubPrimary rounded-xl">
+        <h2 className="text-center text-backgroundcolor text-2xl font-bold">
+          بازی های آفلاین
+        </h2>
         <Link
-          className="flex justify-center items-center border-2 rounded-3xl py-1 pl-2 pr-3 hover:shadow-lg hover:scale-105 transition-all duration-300 ease-out bg-darkBackgroundcolor hover:bg-backgroundcolor"
+          className="flex justify-center items-center border-2 rounded-3xl py-1 pl-2 pr-3 hover:shadow-lg hover:scale-105 transition-all duration-300 ease-out bg-backgroundcolor hover:bg-darkBackgroundcolor border-subPrimary"
           to={"/"}>
           <span>برگشت</span>
           <Icons.arrow className={"w-6 rotate-180"} />
@@ -63,7 +63,7 @@ export default function OfflineGames() {
           <Link
             to={game.page}
             key={game.name}
-            className="relative border rounded-3xl size-full aspect-square hover:shadow-lg hover:scale-105 transition-all duration-300 ease-out">
+            className="relative border-2 border-subPrimary rounded-3xl size-full aspect-square hover:shadow-lg hover:scale-105 transition-all duration-300 ease-out">
             <div
               className="absolute inset-0 rounded-3xl"
               style={{
