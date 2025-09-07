@@ -1,6 +1,8 @@
 import Eyes from "../components/Eyes";
 import { Link } from "react-router-dom";
 import { Icons } from "../components/Icons";
+import UseAuth from "../UseAuth";
+import { useEffect, useState } from "react";
 
 const Btn = ({ title, description, to }) => (
   <Link
@@ -14,6 +16,15 @@ const Btn = ({ title, description, to }) => (
 );
 
 function HomePage() {
+  const { isAuthenticated } = UseAuth();
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setUser(JSON.parse(localStorage.getItem("user_data")));
+    }
+  }, [isAuthenticated]);
+
   return (
     <>
       <div className="w-screen h-screen bg-backgroundcolor overflow-hidden!">
@@ -23,8 +34,14 @@ function HomePage() {
           <Link
             className="flex justify-center items-center gap-2 hover:scale-105 transition-all duration-300 ease-out"
             // bg-darkBackgroundcolor hover:bg-backgroundcolor
-            to={"/Profile"}>
-            <span className="text-lg">نام کاربر</span>
+            to={"/login"}>
+            <span className="text-lg">
+              {(user?.first_name, user?.last_name)
+                ? (user?.first_name, user?.last_name)
+                : user?.phone
+                ? user?.phone
+                : "کاربر مهمان"}
+            </span>
             <Icons.Profile className={"w-9 stroke-black"} />
           </Link>
         </div>
@@ -39,7 +56,7 @@ function HomePage() {
             <Btn
               title={"بازی آنلاین"}
               description={"بازی با دوستان بصورت جهانی"}
-              to="/OnlineGames"
+              to={isAuthenticated ? "/OnlineGames" : "/login"}
             />
           </div>
         </div>
