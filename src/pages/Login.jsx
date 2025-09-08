@@ -17,13 +17,11 @@ export default function Login() {
 
   const [nameError, setNameError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
-  const [emailError, setEmailError] = useState(false);
   const [codeError, setCodeError] = useState(false);
 
   const [textError, setTextError] = useState(null);
 
   // Signup form state
-  const [signEmail, setSignEmail] = useState("");
   const [signPhone, setSignPhone] = useState("");
   const [signPassword, setSignPassword] = useState("");
   const [signCode, setSignCode] = useState("");
@@ -41,8 +39,18 @@ export default function Login() {
   const handleSendCode = async () => {
     if (!signPhone || resendTimer > 0) return;
     try {
-      setIsSendingCode(true);
+      if (signPhone == "") {
+        setTextError("شماره نمی‌تواند خالی باشد.");
+        setNameError(true);
+        return;
+      }
+      if (signPassword == "") {
+        setPasswordError(true);
+        setTextError("پسورد نمی‌تواند خالی باشد.");
+        return;
+      }
       sendCode();
+      setIsSendingCode(true);
       setResendTimer(60);
     } finally {
       setIsSendingCode(false);
@@ -53,7 +61,6 @@ export default function Login() {
     setTextError("");
     setNameError(false);
     setPasswordError(false);
-    setEmailError(false);
     setCodeError(false);
   }
 
@@ -93,7 +100,7 @@ export default function Login() {
 
     try {
       if (loginUsername == "") {
-        setTextError("نام کاربری نمی‌تواند خالی باشد.");
+        setTextError("شماره نمی‌تواند خالی باشد.");
         setNameError(true);
         return;
       }
@@ -118,39 +125,16 @@ export default function Login() {
         navigate("/profile", { replace: true });
       }
     } catch (error) {
+      setTextError(error?.response?.data?.detail);
       console.error("Login error:", error);
       // مدیریت خطاها می‌تونه در اینجا باشه
     }
   }
   async function sendCode() {
-    // e.preventDefault();
-
     clearErrors();
 
     try {
-      if (signEmail == "") {
-        setTextError("ایمیل نمی‌تواند خالی باشد.");
-        setEmailError(true);
-        return;
-      }
-      if (signPhone == "") {
-        setTextError("شماره نمی‌تواند خالی باشد.");
-        setNameError(true);
-        return;
-      }
-      if (signPassword == "") {
-        setPasswordError(true);
-        setTextError("پسورد نمی‌تواند خالی باشد.");
-        return;
-      }
-      // if (signCode == "") {
-      //   setTextError("کد را وارد کنید.");
-      //   setCodeError(true);
-      //   return;
-      // }
-
       const data = {
-        email: signEmail,
         phone: signPhone,
         password: signPassword,
       };
@@ -179,11 +163,6 @@ export default function Login() {
 
     clearErrors();
     try {
-      if (signEmail == "") {
-        setTextError("ایمیل نمی‌تواند خالی باشد.");
-        setEmailError(true);
-        return;
-      }
       if (signPhone == "") {
         setTextError("شماره نمی‌تواند خالی باشد.");
         setNameError(true);
@@ -213,10 +192,11 @@ export default function Login() {
         }
       );
       if (response.status === 200) {
-        localStorage.setItem("token", response.data.access_token);
-        navigate("/profile", { replace: true });
+        // localStorage.setItem("token", response.data.access_token);
+        navigate("/", { replace: true });
       }
     } catch (error) {
+      setTextError(error?.response?.data?.detail);
       console.error("Sign error:", error);
       // مدیریت خطاها می‌تونه در اینجا باشه
     }
@@ -282,7 +262,7 @@ export default function Login() {
 
               <input
                 type="text"
-                placeholder="نام کاربری"
+                placeholder="شماره موبایل (مثال: 09XXXXXXXXX)"
                 value={loginUsername}
                 onChange={(e) => setLoginUsername(e.target.value)}
                 className={`bg-slowSubPrimary p-2 rounded-xl w-full outline-none transition-all duration-300 ${
@@ -320,21 +300,15 @@ export default function Login() {
               </h1>
 
               <input
-                type="email"
-                placeholder="ایمیل (example@gmail.com)"
-                value={signEmail}
-                onChange={(e) => setSignEmail(e.target.value)}
-                className="bg-slowSubPrimary p-2 rounded-xl w-full outline-none"
-                autoComplete="email"
-              />
-
-              <input
                 type="tel"
                 inputMode="numeric"
                 placeholder="شماره موبایل (مثال: 09XXXXXXXXX)"
                 value={signPhone}
                 onChange={(e) => setSignPhone(e.target.value)}
-                className="bg-slowSubPrimary p-2 rounded-xl w-full outline-none"
+                className={`bg-slowSubPrimary p-2 rounded-xl w-full outline-none ${
+                  nameError &&
+                  "border-darkPrimary placeholder:text-darkPrimary border-2"
+                }`}
                 autoComplete="tel"
               />
 
@@ -343,7 +317,10 @@ export default function Login() {
                 placeholder="رمز عبور"
                 value={signPassword}
                 onChange={(e) => setSignPassword(e.target.value)}
-                className="bg-slowSubPrimary p-2 rounded-xl w-full outline-none"
+                className={`bg-slowSubPrimary p-2 rounded-xl w-full outline-none ${
+                  passwordError &&
+                  "border-darkPrimary placeholder:text-darkPrimary border-2"
+                }`}
                 autoComplete="new-password"
               />
 
@@ -354,7 +331,10 @@ export default function Login() {
                   placeholder="کد تایید"
                   value={signCode}
                   onChange={(e) => setSignCode(e.target.value)}
-                  className="bg-slowSubPrimary p-2 rounded-xl w-full outline-none"
+                  className={`bg-slowSubPrimary p-2 rounded-xl w-full outline-none ${
+                    codeError &&
+                    "border-darkPrimary placeholder:text-darkPrimary border-2"
+                  }`}
                 />
                 <button
                   type="button"

@@ -10,7 +10,7 @@ import HunterGameStarter from "./pages/hunterGame/HunterGameStarter";
 import HunterGamePage from "./pages/hunterGame/HunterGamePage";
 import HunterScoreBoeard from "./pages/hunterGame/HunterScoreBoeard";
 
-import Rps from "./pages/RPS";
+import Rps from "./pages/Rps";
 import SudokuGame from "./pages/sudokuGame/SudokuGame";
 
 import SpySetup from "./pages/spyGame/SpySetup";

@@ -6,7 +6,7 @@ const games = [
   {
     name: "سنگ کاغذ قیچی",
     image: "./rps.png",
-    page: "/Rps",
+    page: "/rps",
   },
   {
     name: "دوز",
