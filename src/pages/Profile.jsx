@@ -7,14 +7,7 @@ import { Icons } from "../components/Icons";
 export default function Profile() {
   const navigate = useNavigate();
 
-  const [user, setUser] = useState(() => {
-    try {
-      const raw = JSON.parse(localStorage.getItem("user_data"));
-      return raw ? raw : null;
-    } catch {
-      return null;
-    }
-  });
+  const [user, setUser] = useState(null);
 
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState(() => ({
@@ -27,16 +20,51 @@ export default function Profile() {
   }));
   const [loading, setLoading] = useState(false);
 
+  // Fetch user data from API when component mounts
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        const response = await axios.get(`${API_BASE}/users/me`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `bearer ${token}`,
+          },
+        });
+
+        if (response.status === 200) {
+          const data = response.data;
+          setUser(data);
+          console.log("User data fetched:", data); // For debugging
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        if (error.response?.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user_data");
+          navigate("/login", { replace: true });
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [navigate]);
+
   // وقتی وارد ویرایش می‌شویم یا user تغییر می‌کند، فرم را همگام کن
   useEffect(() => {
-    if (editing) {
+    if (editing && user) {
       setForm({
-        email: user?.email || "",
-        phone: user?.phone || "",
+        email: user.email || "",
+        phone: user.phone || "",
         password: "",
-        first_name: user?.first_name || "",
-        last_name: user?.last_name || "",
-        gender: user?.gender || "",
+        first_name: user.first_name || "",
+        last_name: user.last_name || "",
+        gender: user.gender || "",
       });
     }
   }, [editing, user]);
@@ -86,9 +114,8 @@ export default function Profile() {
     try {
       const res = await axios.patch(`${API_BASE}/users/me`, body, {
         headers: {
-          Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `bearer ${token}`,
         },
       });
 

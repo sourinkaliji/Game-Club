@@ -11,6 +11,8 @@ import HunterGamePage from "./pages/hunterGame/HunterGamePage";
 import HunterScoreBoeard from "./pages/hunterGame/HunterScoreBoeard";
 
 import Rps from "./pages/Rps";
+import OnlineRps from "./pages/OnlineRps";
+
 import SudokuGame from "./pages/sudokuGame/SudokuGame";
 
 import SpySetup from "./pages/spyGame/SpySetup";
@@ -33,6 +35,8 @@ function App() {
         <Route path="/HunterScoreBoeard" element={<HunterScoreBoeard />} />
 
         <Route path="/Rps" element={<Rps />} />
+        <Route path="/OnlineRPS" element={<OnlineRps />} />
+
         <Route path="/SudokuGame" element={<SudokuGame />} />
 
         <Route path="/SpySetup" element={<SpySetup />} />
