@@ -46,31 +46,14 @@ export default function OnlineRps() {
         break;
       case "match_end":
         setIsGameOver(true);
-        console.log("Match End Data:", {
-          gameState,
-          payload: data.payload,
-          winnerId: data.payload.winner,
-          scores: data.payload.scores,
-        });
-
         const winnerPlayer = gameState?.players.find(
           (p) => p.id === data.payload.winner
         );
-        const winnerName = winnerPlayer?.name || data.payload.winner;
-        const winnerScore = data.payload.scores
-          ? data.payload.scores[data.payload.winner]
-          : null;
-
-        console.log("Winner Info:", {
-          player: winnerPlayer,
-          name: winnerName,
-          score: winnerScore,
-        });
 
         setWinner({
           id: data.payload.winner,
-          name: winnerName,
-          score: winnerScore,
+          name: winnerPlayer?.name || data.payload.winner,
+          score: data.payload.scores[data.payload.winner],
         });
         break;
       case "system":
@@ -228,65 +211,71 @@ export default function OnlineRps() {
             ? roundResult.winner
               ? `برنده راند: ${
                   gameState?.players.find((p) => p.id === roundResult.winner)
-                    ?.name
+                    ?.name ||
+                  gameState?.players.find((p) => p.id === roundResult.winner)
+                    ?.id
                 }`
               : "مساوی"
             : "انتخاب کنید"}
         </h1>
 
-        {/* Opponent's Choice */}
-        <div className="size-40 p-3 rounded-3xl bg-subPrimary rotate-180">
-          {roundResult &&
-            (() => {
-              const opponent = gameState?.players.find(
-                (p) => p.id !== gameState?.players[0].id
-              );
-              const oppChoice = roundResult.choices[opponent?.id];
-              let imgSrc = question;
-              if (oppChoice === "rock") imgSrc = rock;
-              else if (oppChoice === "paper") imgSrc = paper;
-              else if (oppChoice === "scissors") imgSrc = scissor;
-              return (
-                <img
-                  src={imgSrc}
-                  alt="Opponent's Choice"
-                  className="w-full h-full"
-                />
-              );
-            })()}
+        {/* Opponent's Choice Only */}
+        <div className="flex flex-col items-center">
+          <div className="size-40 p-3 rounded-3xl bg-subPrimary rotate-180">
+            {roundResult &&
+              (() => {
+                const userData = JSON.parse(localStorage.getItem("user_data"));
+                const myPhone = userData?.phone;
+                const opponent = gameState?.players.find(
+                  (p) => p.id !== myPhone
+                );
+                const oppChoice = roundResult.choices[opponent?.id];
+                let imgSrc = question;
+                if (oppChoice === "rock") imgSrc = rock;
+                else if (oppChoice === "paper") imgSrc = paper;
+                else if (oppChoice === "scissors") imgSrc = scissor;
+                return (
+                  <img
+                    src={imgSrc}
+                    alt="Opponent's Choice"
+                    className="w-full h-full"
+                  />
+                );
+              })()}
+          </div>
         </div>
       </div>
 
       {/* Player Choices */}
-      {!isGameOver ? (
-        <div className="flex justify-center items-center gap-3 mb-5">
-          <button onClick={() => makeChoice("rock")}>
-            <h1 className="text-2xl font-bold pb-2">سنگ</h1>
-            <img
-              className="size-20 xs:size-25 lg:size-30 p-3 rounded-3xl bg-slowSubPrimary hover:bg-subPrimary hover:scale-105 transition-all duration-300 ease-out cursor-pointer"
-              src={rock}
-              alt="Rock"
-            />
-          </button>
-          <button onClick={() => makeChoice("paper")}>
-            <h1 className="text-2xl font-bold pb-2">کاغذ</h1>
-            <img
-              className="size-20 xs:size-25 lg:size-30 p-3 rounded-3xl bg-slowSubPrimary hover:bg-subPrimary hover:scale-105 transition-all duration-300 ease-out cursor-pointer"
-              src={paper}
-              alt="Paper"
-            />
-          </button>
-          <button onClick={() => makeChoice("scissors")}>
-            <h1 className="text-2xl font-bold pb-2">قیچی</h1>
-            <img
-              className="size-20 xs:size-25 lg:size-30 p-3 rounded-3xl bg-slowSubPrimary hover:bg-subPrimary hover:scale-105 transition-all duration-300 ease-out cursor-pointer"
-              src={scissor}
-              alt="Scissors"
-            />
-          </button>
-        </div>
-      ) : (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+
+      <div className="flex justify-center items-center gap-3 mb-5">
+        <button onClick={() => makeChoice("rock")}>
+          <h1 className="text-2xl font-bold pb-2">سنگ</h1>
+          <img
+            className="size-20 xs:size-25 lg:size-30 p-3 rounded-3xl bg-slowSubPrimary hover:bg-subPrimary hover:scale-105 transition-all duration-300 ease-out cursor-pointer"
+            src={rock}
+            alt="Rock"
+          />
+        </button>
+        <button onClick={() => makeChoice("paper")}>
+          <h1 className="text-2xl font-bold pb-2">کاغذ</h1>
+          <img
+            className="size-20 xs:size-25 lg:size-30 p-3 rounded-3xl bg-slowSubPrimary hover:bg-subPrimary hover:scale-105 transition-all duration-300 ease-out cursor-pointer"
+            src={paper}
+            alt="Paper"
+          />
+        </button>
+        <button onClick={() => makeChoice("scissors")}>
+          <h1 className="text-2xl font-bold pb-2">قیچی</h1>
+          <img
+            className="size-20 xs:size-25 lg:size-30 p-3 rounded-3xl bg-slowSubPrimary hover:bg-subPrimary hover:scale-105 transition-all duration-300 ease-out cursor-pointer"
+            src={scissor}
+            alt="Scissors"
+          />
+        </button>
+      </div>
+      {isGameOver && (
+        <div className="absolute top-0 right-0 bg-black/80 backdrop-blur-md w-screen h-screen flex justify-center items-center">
           <div className="bg-white p-6 rounded-xl text-center">
             <h2 className="text-2xl font-bold mb-4">بازی تمام شد!</h2>
             <p className="text-xl mb-6">برنده: {winner?.name}</p>

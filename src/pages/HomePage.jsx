@@ -36,10 +36,10 @@ function HomePage() {
             // bg-darkBackgroundcolor hover:bg-backgroundcolor
             to={"/login"}>
             <span className="text-lg">
-              {(user?.first_name, user?.last_name)
-                ? (user?.first_name, user?.last_name)
+              {user?.first_name
+                ? user.first_name
                 : user?.phone
-                ? user?.phone
+                ? user.phone
                 : "کاربر مهمان"}
             </span>
             <Icons.Profile className={"w-9 stroke-black"} />

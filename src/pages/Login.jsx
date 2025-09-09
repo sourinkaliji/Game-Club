@@ -211,12 +211,12 @@ export default function Login() {
     <div
       className="p-2 bg-backgroundcolor w-screen min-h-screen flex flex-col justify-between"
       dir="rtl">
-      <div className="py-3 px-2 xs:px-4 flex justify-between items-center mt-1 mb-5 bg-darkBackgroundcolor rounded-xl">
-        <h2 className="text-center text-2xl font-bold">
+      <div className="py-3 px-2 xs:px-4 flex justify-between items-center mt-1 mb-5 bg-slowSubPrimary rounded-xl">
+        <h2 className="text-center text-backgroundcolor text-2xl font-bold">
           {mode === "login" ? "صفحه ورود" : "صفحه ثبت‌نام"}
         </h2>
         <Link
-          className="flex justify-center items-center border-2 rounded-3xl py-1 pl-2 pr-3 hover:shadow-lg hover:scale-105 transition-all duration-300 ease-out bg-darkBackgroundcolor hover:bg-backgroundcolor"
+          className="flex justify-center items-center border-2 rounded-3xl py-1 pl-2 pr-3 hover:shadow-lg hover:scale-105 transition-all duration-300 ease-out bg-backgroundcolor hover:bg-darkBackgroundcolor"
           to={"/"}>
           <span>برگشت</span>
           <Icons.arrow className={"w-6 rotate-180"} />
