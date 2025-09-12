@@ -7,16 +7,19 @@ const games = [
     name: "سنگ کاغذ قیچی",
     image: "./rps.png",
     page: "/OnlineRPS",
+    soon: false,
   },
   {
     name: "دوز",
     image: "./TicTacToe.png",
     page: "/HunterGameStarter",
+    soon: true,
   },
   {
     name: "اوتلو",
     image: "Othello.png",
     page: "/SudokuGame",
+    soon: true,
   },
   //   {
   //     name: "جاسوس",
@@ -42,19 +45,28 @@ export default function OnlineGames() {
       <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 justify-center gap-4">
         {games.map((game) => (
           <Link
-            to={game.page}
+            to={game.soon ? "" : game.page}
             key={game.name}
-            className="relative border rounded-3xl size-full aspect-square hover:shadow-lg hover:scale-105 transition-all duration-300 ease-out">
+            className="relative border rounded-3xl size-full aspect-square hover:shadow-lg hover:scale-105 transition-all duration-300 ease-out overflow-hidden"
+            style={{ pointerEvents: game.soon ? "none" : "auto" }}>
             <div
-              className="absolute inset-0 rounded-3xl"
+              className={`absolute inset-0 rounded-3xl ${
+                game.soon ? "blur-sm" : ""
+              }`}
               style={{
                 background: `linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 50%), url(${game.image})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
             />
-
-            <h3 className="absolute bottom-5 right-2 text-lg font-bold text-white">
+            {game.soon && (
+              <div className="absolute inset-0 flex items-center justify-center z-10">
+                <span className="text-2xl font-bold text-white bg-black/60 px-6 py-2 rounded-2xl">
+                  بزودی
+                </span>
+              </div>
+            )}
+            <h3 className="absolute bottom-5 right-2 text-lg font-bold text-white z-20">
               {game.name}
             </h3>
           </Link>
